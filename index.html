@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>WebRTC PeerJs Demo</title>
+     <style>
+    :root{ --bg: rgba(245, 247, 246, 0.308); }
+    html,body{height:100%;margin:0}
+    body{min-height:100vh;background:var(--bg);}
+    body {
+      
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    /* joy*/
+    .direction-pad {
+      display: grid;
+      grid-template-columns: 60px 60px 60px;
+      grid-template-rows: 60px 60px 60px;
+      gap: 10px;
+      justify-content: center;
+    }
+    .direction-pad button {
+      width: 60px;
+      height: 60px;
+      font-size: 20px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .direction-pad button:hover {
+      background: #45a049;
+    }
+    /* ตำแหน่งปุ่ม */
+    .up    { grid-column: 2; grid-row: 1; }
+    .left  { grid-column: 1; grid-row: 2; }
+    .right { grid-column: 3; grid-row: 2; }
+    .down  { grid-column: 2; grid-row: 3; }
+    .mid  { grid-column: 2; grid-row: 2; }
+
+    
+  </style>
+</head>
+
+<body>
+    <!-- As a heading -->
+    
+    <nav class="navbar navbar-light bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1" style="color: aliceblue;">WebRTC PeerJs Demo</span>
+        </div>
+    </nav>
+    <div class="container-fluid">
+
+
+        <div class="row">
+            <div class="col-5 pt-5 ps-5 col-sm-7">
+                <!--<label class="form-label">Enter Room ID to connect or create</label>-->
+                <input id="room-input" type="text" class="form-control" placeholder="2" hidden>
+                <br>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-secondary mb-3" onclick="createRoom()">Create Room</button>
+                    <button type="submit" class="btn btn-primary mb-3" onclick="joinRoom()">Join Room</button>
+                    
+                    <!--<button type="submit" class="btn btn-success mb-3" onclick="joinRoomWithoutCamShareScreen()">Join
+                        Room and Share screen directly</button>
+                    <button type="submit" class="btn btn-dark mb-3" onclick="joinRoomShareVideoAsStream()">Join
+                        Room and stream local media </button>
+                    <button type="submit" class="btn btn-secondary mb-3" onclick="camstate(true)">OpenCam</button>
+                    <button type="submit" class="btn btn-secondary mb-3" onclick="camstate(false)">CloseCam</button>-->
+                </div>
+
+            </div>
+            <div class="col-7 pt-5 ps-5 pe-5 col-sm-5">
+                <div class="alert alert-info alert-dismissible fade show mt-3" role="alert" id="notification" hidden>
+                    <strong>Holy guacamole!</strong> You should check in on some of those fields below.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col ps-5 pt-5" id="local-vid-container" hidden>
+                <div class="row">
+                    <div class="col">
+
+                    </div>
+
+                </div>
+                <div class="row p-3">
+                    <video height="300" id="local-video" controls class="local-video" hidden></video>
+                </div>
+                <div class="row">
+                    <!--<div class="col-3 col-sm-12"><button type="submit" class="btn btn-success mb-3"
+                            onclick="startScreenShare()">Share Screen</button>-->
+                    </div>
+                </div>
+            </div>
+            <div class="col ps-5 pt-5" id="screenshare-container" hidden>
+                <div class="row">
+                    <div class="col">
+                        <h2>Screen Shared Stream</h2>
+                    </div>
+
+                </div>
+                <div class="row p-3">
+                    <video height="300" id="screenshared-video" controls class="local-video"></video>
+                </div>
+                <!-- <div class="row">
+                    <div class="col-3 col-sm-12"><button type="submit" class="btn btn-success mb-3"
+                            onclick="startScreenShare()">Share Screen</button>
+                    </div>
+                </div> -->
+            </div>
+            <div class="col ps-5 pt-5" id="remote-vid-container" hidden>
+                <div class="row">
+                    <div class="col">
+                        <h2>Remote Stream</h2>
+                    </div>
+
+                </div>
+                <div class="row p-3">
+                    <video height="300" id="remote-video" controls class="remote-video" ></video>
+                </div>
+            </div>
+
+            <div class="col ps-5 pt-5" id="local-mdeia-container" hidden>
+                <div class="row">
+
+
+                </div>
+                
+            </div>
+        </div>
+
+    </div>
+                <div class="direction-pad">
+                    <button class="up">up</button>
+                    <button class="left">left</button>
+                    <button class="right">right</button>
+                    <button class="down">down</button>
+                    <button class="mid">mid</button>
+                </div>
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+
+    <!-- check https://peerjs.com/ for latest CDN-->
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="script.js"></script>
+
+    <h2>Hash Value Checker</h2>
+    <p id="result">Init</p>
+    <script>
+    
+        let hashValue = window.location.hash.substring(1); 
+    
+        if (hashValue) {
+            document.getElementById("result").innerText = "คุณส่งค่า hash มา: " + hashValue;
+
+      // ตัวอย่างเอาไปใช้
+        if (hashValue === "2") {
+            //createRoom();
+            window.location.href = "eye.html";
+            
+        } else if (hashValue === "menu") {
+            console.log("แสดงเมนูหลัก");
+        }
+        } else {
+            document.getElementById("result").innerText = "ไม่มีค่า hash";
+        }
+  </script>
+</body>
+
+</html>
