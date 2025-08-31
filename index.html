@@ -12,11 +12,9 @@
 
     <title>WebRTC PeerJs Demo</title>
      <style>
-    :root{ --bg: rgba(245, 247, 246, 0.308); }
-    html,body{height:100%;margin:0}
-    body{min-height:100vh;background:var(--bg);}
+   
     body {
-      
+       background-color: rgba(113, 112, 112, 0.804);
       font-family: Arial, sans-serif;
       text-align: center;
       margin-top: 50px;
@@ -95,12 +93,12 @@
             <div class="col ps-5 pt-5" id="local-vid-container" hidden>
                 <div class="row">
                     <div class="col">
-
+                         <h2>Local Stream</h2>
                     </div>
 
                 </div>
                 <div class="row p-3">
-                    <video height="300" id="local-video" controls class="local-video" hidden></video>
+                    <video height="300" id="local-video" controls class="local-video" ></video>
                 </div>
                 <div class="row">
                     <!--<div class="col-3 col-sm-12"><button type="submit" class="btn btn-success mb-3"
@@ -126,10 +124,7 @@
             </div>
             <div class="col ps-5 pt-5" id="remote-vid-container" hidden>
                 <div class="row">
-                    <div class="col">
-                        <h2>Remote Stream</h2>
-                    </div>
-
+                    <h>Remote</h>
                 </div>
                 <div class="row p-3">
                     <video height="300" id="remote-video" controls class="remote-video" ></video>
@@ -170,22 +165,28 @@
     <script>
     
         let hashValue = window.location.hash.substring(1); 
-    
+        
         if (hashValue) {
             document.getElementById("result").innerText = "คุณส่งค่า hash มา: " + hashValue;
-
+        
       // ตัวอย่างเอาไปใช้
         if (hashValue === "2") {
-            //createRoom();
-            window.location.href = "eye.html";
+            joinRoom();
+            //window.location.href = "eye.html";
             
         } else if (hashValue === "menu") {
             console.log("แสดงเมนูหลัก");
         }
         } else {
             document.getElementById("result").innerText = "ไม่มีค่า hash";
+            createRoom();
         }
   </script>
 </body>
 
+
 </html>
+
+
+
+
